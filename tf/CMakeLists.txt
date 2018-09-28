@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 project(tf)
 
+hunter_add_package(ros_angles)
+hunter_add_package(ros_common_msgs)
+hunter_add_package(ros_message_generation)
+hunter_add_package(ros_comm)
+hunter_add_package(ros_std_msgs)
+hunter_add_package(ros_tf2)
+
 find_package(catkin REQUIRED COMPONENTS
     angles
     geometry_msgs
@@ -13,7 +20,8 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     tf2_ros
 )
-find_package(Boost REQUIRED COMPONENTS thread signals system)
+find_package(Boost CONFIG REQUIRED COMPONENTS thread signals system)
+set(Boost_LIBRARIES Boost::thread Boost::signals Boost::system)
 
 catkin_python_setup()
 
@@ -28,10 +36,12 @@ add_service_files(DIRECTORY srv FILES FrameGraph.srv)
 
 generate_messages(DEPENDENCIES geometry_msgs sensor_msgs std_msgs)
 
+set(PROJECT_INSTALLSPACE_LIBRARIES ros::${PROJECT_NAME})
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS geometry_msgs message_filters message_runtime roscpp sensor_msgs std_msgs tf2_ros rosconsole
+  DEPENDS "Boost COMPONENTS thread signals system"
 )
 
 add_library(${PROJECT_NAME}
@@ -122,11 +132,20 @@ install(DIRECTORY include/${PROJECT_NAME}/
     DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
 
-install(TARGETS ${PROJECT_NAME} tf_echo tf_empty_listener tf_change_notifier tf_monitor static_transform_publisher
+install(TARGETS ${PROJECT_NAME}
+    EXPORT ${PROJECT_NAME}Targets
     ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+install(TARGETS tf_echo tf_empty_listener tf_change_notifier tf_monitor static_transform_publisher
+    ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+    RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+install(EXPORT ${PROJECT_NAME}Targets
+    DESTINATION share/${PROJECT_NAME}/cmake
+    NAMESPACE ros::)
 
 # Install rosrun-able scripts
 install(PROGRAMS
