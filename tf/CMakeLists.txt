@@ -40,7 +40,7 @@ set(PROJECT_INSTALLSPACE_LIBRARIES ros::${PROJECT_NAME})
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS geometry_msgs message_filters message_runtime roscpp sensor_msgs std_msgs tf2_ros rosconsole
+  CATKIN_DEPENDS angles geometry_msgs message_filters message_runtime roscpp sensor_msgs std_msgs tf2_ros rosconsole
   DEPENDS "Boost COMPONENTS thread signals system"
 )
 
